@@ -14,6 +14,7 @@ struct Slices {
 	var frameWidth: Int
 	var frameHeight: Int
 	var frames: [NSRect]
+    var preTextField: String
 }
 
 class ViewController: NSViewController {
@@ -22,7 +23,8 @@ class ViewController: NSViewController {
 	
 	@IBOutlet var widthField: NSTextField!
 	@IBOutlet var heightField: NSTextField!
-
+    @IBOutlet var preTextField: NSTextField!
+    
 	@IBOutlet var showGridButton: NSButton!
 
 	@IBAction func generate(_ sender: Any) {
@@ -53,13 +55,15 @@ class ViewController: NSViewController {
 			var frames: [String : Any] = [:]
 			
 			for (index, frame) in slices.frames.enumerated() {
-				let frameName = String(format: "%03d", index)
+				let frameName = String(format: "\(slices.preTextField)_%03d.png", index)
 				
 				frames[frameName] = [
+                    "aliases" : [],
 					"spriteOffset" : "{0,0}",
 					"spriteSize" : "{\(slices.frameWidth),\(slices.frameHeight)}",
 					"spriteSourceSize" : "{\(slices.frameWidth),\(slices.frameHeight)}",
 					"textureRect" : "{{\(frame.minX),\(frame.minY)},{\(frame.width),\(frame.height)}}",
+                    "textureRotated" : false,
 				]
 			}
 			
@@ -69,6 +73,8 @@ class ViewController: NSViewController {
 					"format" : 3,
 					"size" : "{\(slices.width),\(slices.height)}",
 					"realTextureFileName" : textureURL.lastPathComponent,
+                    "premultiplyAlpha": false,
+                    "textureFileName" : textureURL.lastPathComponent,
 				]
 			]
 
@@ -103,7 +109,8 @@ class ViewController: NSViewController {
 			height: Int(image.size.height),
 			frameWidth: widthField.integerValue,
 			frameHeight: heightField.integerValue,
-			frames: []
+			frames: [],
+            preTextField: preTextField.stringValue
 		)
 		
 		guard slices.frameWidth > 0 && slices.frameHeight > 0 else { return nil }
@@ -121,7 +128,7 @@ class ViewController: NSViewController {
 		guard let slices = currentSlices, let slicedImage = currentImage?.copy() as? NSImage else {
 			return
 		}
-		
+			
 		let grid = NSBezierPath()
 		grid.lineWidth = 1.5
 
